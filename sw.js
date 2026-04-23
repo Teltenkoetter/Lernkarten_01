@@ -1,10 +1,9 @@
-const CACHE = 'lernkarten-v8';
+const CACHE = 'lernkarten-v9';
 const SHELL = ['./index.html', './style.css', './app.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())
-  );
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)));
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
