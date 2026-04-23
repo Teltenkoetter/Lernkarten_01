@@ -1,4 +1,4 @@
-const CACHE = 'lernkarten-v5';
+const CACHE = 'lernkarten-v6';
 const SHELL = ['./index.html', './style.css', './app.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {
