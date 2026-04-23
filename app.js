@@ -100,29 +100,6 @@ function ladeOpenGruppen() {
   } catch(e) {}
 }
 
-// group order
-let gruppenReihenfolge = [];
-function saveGruppenReihenfolge() {
-  localStorage.setItem('gruppenReihenfolge', JSON.stringify(gruppenReihenfolge));
-}
-function ladeGruppenReihenfolge() {
-  try {
-    const saved = localStorage.getItem('gruppenReihenfolge');
-    if (saved) gruppenReihenfolge = JSON.parse(saved);
-  } catch(e) {}
-}
-function getSortierteGruppen() {
-  if (!gruppenReihenfolge.length) return [...gruppen];
-  return [...gruppen].sort((a, b) => {
-    const ai = gruppenReihenfolge.indexOf(a.id);
-    const bi = gruppenReihenfolge.indexOf(b.id);
-    if (ai === -1 && bi === -1) return 0;
-    if (ai === -1) return 1;
-    if (bi === -1) return -1;
-    return ai - bi;
-  });
-}
-
 // import buffer
 let importDatenBuffer = null;
 
@@ -224,16 +201,13 @@ function karteItemHtml(s) {
 function renderVerwaltung() {
   // Gruppen-Liste
   const gList = document.getElementById('gruppen-liste');
-  const sortedG = getSortierteGruppen();
-  gList.innerHTML = sortedG.length === 0
+  gList.innerHTML = gruppen.length === 0
     ? '<p class="hinweis" style="padding:0.5rem 0">Noch keine Gruppen.</p>'
-    : sortedG.map((g, i) => `
+    : gruppen.map(g => `
       <div class="gruppe-item">
         <span class="gruppe-dot"></span>
         <span class="gruppe-name">${esc(g.name)}</span>
         <span class="gruppe-count">${gruppeKartenAnzahl(g.id)} Karte(n)</span>
-        <button class="btn-gruppe-move btn-gruppe-up" data-id="${g.id}" title="Nach oben"${i === 0 ? ' style="visibility:hidden"' : ''}>▲</button>
-        <button class="btn-gruppe-move btn-gruppe-down" data-id="${g.id}" title="Nach unten"${i === sortedG.length - 1 ? ' style="visibility:hidden"' : ''}>▼</button>
         <button class="btn-gruppe-ren" data-id="${g.id}" title="Umbenennen">✏️</button>
         <button class="btn-gruppe-del" data-id="${g.id}" title="Löschen">✕</button>
       </div>`).join('');
@@ -242,7 +216,7 @@ function renderVerwaltung() {
   const sel     = document.getElementById('select-gruppe');
   const savedId = localStorage.getItem('lastGruppeId') || sel.value;
   sel.innerHTML = '<option value="">Gruppe wählen…</option>' +
-    getSortierteGruppen().map(g => `<option value="${g.id}"${g.id === savedId ? ' selected' : ''}>${esc(g.name)}</option>`).join('');
+    gruppen.map(g => `<option value="${g.id}"${g.id === savedId ? ' selected' : ''}>${esc(g.name)}</option>`).join('');
 
   // Karten-Anzeige
   const container = document.getElementById('karten-nach-gruppen');
@@ -278,7 +252,7 @@ function renderVerwaltung() {
   // Gruppiert mit aufklappbaren Sektionen
   const sortiertGruppen = sort === 'gruppe'
     ? [...gruppen].sort((a, b) => a.name.localeCompare(b.name, 'de'))
-    : getSortierteGruppen();
+    : gruppen;
 
   const byGruppe = new Map();
   sortiertGruppen.forEach(g => byGruppe.set(g.id, []));
@@ -332,7 +306,7 @@ function renderLernAuswahl() {
     document.getElementById('btn-lernen-start').disabled = true;
     return;
   }
-  container.innerHTML = getSortierteGruppen().map(g => {
+  container.innerHTML = gruppen.map(g => {
     const n = gruppeKartenAnzahl(g.id);
     return `
       <div class="gruppe-check-item" data-gid="${g.id}">
@@ -714,36 +688,8 @@ document.getElementById('input-neue-gruppe').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('btn-gruppe-add').click();
 });
 
-// Gruppe sortieren / umbenennen / löschen
+// Gruppe umbenennen / löschen
 document.getElementById('gruppen-liste').addEventListener('click', async e => {
-  const upBtn = e.target.closest('.btn-gruppe-up');
-  if (upBtn) {
-    const id = upBtn.dataset.id;
-    const sorted = getSortierteGruppen();
-    const idx = sorted.findIndex(g => g.id === id);
-    if (idx > 0) {
-      const newOrder = sorted.map(g => g.id);
-      [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
-      gruppenReihenfolge = newOrder;
-      saveGruppenReihenfolge();
-      renderVerwaltung();
-    }
-    return;
-  }
-  const downBtn = e.target.closest('.btn-gruppe-down');
-  if (downBtn) {
-    const id = downBtn.dataset.id;
-    const sorted = getSortierteGruppen();
-    const idx = sorted.findIndex(g => g.id === id);
-    if (idx < sorted.length - 1) {
-      const newOrder = sorted.map(g => g.id);
-      [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
-      gruppenReihenfolge = newOrder;
-      saveGruppenReihenfolge();
-      renderVerwaltung();
-    }
-    return;
-  }
   const renBtn = e.target.closest('.btn-gruppe-ren');
   if (renBtn) {
     const g = gruppen.find(x => x.id === renBtn.dataset.id);
@@ -1016,7 +962,7 @@ document.getElementById('btn-statistik-loeschen').addEventListener('click', asyn
 document.getElementById('btn-export').addEventListener('click', () => {
   if (!gruppen.length) { toast('Keine Gruppen vorhanden'); return; }
   const container = document.getElementById('export-gruppen-liste');
-  container.innerHTML = getSortierteGruppen().map(g => `
+  container.innerHTML = gruppen.map(g => `
     <div class="gruppe-check-item selected" data-gid="${g.id}">
       <div class="check-box" style="background:var(--accent);border-color:var(--accent);color:#000">✓</div>
       <div class="check-label">
@@ -1204,6 +1150,5 @@ if ('serviceWorker' in navigator) {
   await dbInit();
   await ladeAlles();
   ladeOpenGruppen();
-  ladeGruppenReihenfolge();
   renderVerwaltung();
 })();
