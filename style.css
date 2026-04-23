@@ -370,6 +370,7 @@ select option { background: var(--surface2); color: var(--text); }
 .check-label strong { display: block; font-size: 0.93rem; }
 .check-label span { font-size: 0.78rem; color: var(--muted); }
 .selection-actions { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.selection-actions .btn-secondary { flex: 1; text-align: center; }
 
 /* ── LERNMODUS-TOGGLE ──────────────────────────────── */
 .lernmodus-toggle { display: flex; gap: 0.5rem; margin-bottom: 0.25rem; }
