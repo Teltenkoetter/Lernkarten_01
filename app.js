@@ -490,16 +490,18 @@ function zeigeKarte() {
   document.getElementById('btn-zurueck').classList.toggle('invisible', lernIndex === 0);
   document.getElementById('btn-weiter').classList.toggle('invisible', lernIndex === lernKarten.length - 1);
 
+  const aufdeckBtn = document.getElementById('btn-aufdecken');
+  aufdeckBtn.classList.remove('hidden');
   if (lernModus === 'name') {
     document.getElementById('lernkarte-foto-wrapper').classList.add('hidden');
     document.getElementById('lern-name-karte').classList.remove('hidden');
     document.getElementById('lern-name-karte-text').textContent = s.name;
-    document.getElementById('btn-aufdecken').textContent = 'Gesicht zeigen';
+    aufdeckBtn.textContent = 'Gesicht zeigen';
   } else {
     document.getElementById('lern-foto').src = getFotoUrl(s);
     document.getElementById('lernkarte-foto-wrapper').classList.remove('hidden');
     document.getElementById('lern-name-karte').classList.add('hidden');
-    document.getElementById('btn-aufdecken').textContent = 'Name zeigen';
+    aufdeckBtn.textContent = 'Name zeigen';
   }
 }
 
@@ -513,7 +515,7 @@ function zeigeName() {
   } else {
     document.getElementById('lern-name-overlay').classList.remove('hidden');
   }
-  document.getElementById('btn-aufdecken').textContent = 'Nicht gewusst ✗';
+  document.getElementById('btn-aufdecken').classList.add('hidden');
 }
 
 function naechsteKarteOderEnde() {
