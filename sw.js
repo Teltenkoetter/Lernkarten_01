@@ -1,4 +1,4 @@
-const CACHE = 'lernkarten-v18';
+const CACHE = 'memopix-v20';
 const SHELL = ['./index.html', './style.css', './app.js', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {

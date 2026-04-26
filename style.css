@@ -38,8 +38,8 @@ header {
   justify-content: space-between;
 }
 header h1 { font-size: 1.05rem; letter-spacing: 0.3px; color: var(--text); }
-.title-bold  { font-weight: 700; }
-.title-light { font-weight: 400; }
+.title-memo { font-weight: 700; }
+.title-pix  { font-weight: 700; color: #e8a020; }
 
 .btn-help {
   background: var(--surface2);
